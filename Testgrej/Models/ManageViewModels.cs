@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
@@ -8,16 +9,24 @@ namespace Testgrej.Models
     public class IndexViewModel
     {
         public bool HasPassword { get; set; }
-        public IList<UserLoginInfo> Logins { get; set; }
-        public string PhoneNumber { get; set; }
-        public bool TwoFactor { get; set; }
+        public string PhoneNr { get; set; }
         public bool BrowserRemembered { get; set; }
+        [DataType(DataType.Date)]
+        //public DateTime BirthDate { get; set; }
+        [Display(Name = "About me")]
+        public string AboutMe { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Image { get; set; }
+        public int Age { get; set; }
+        public virtual ICollection<ApplicationUser> Friends { get; set; }
     }
 
     public class ManageLoginsViewModel
     {
         public IList<UserLoginInfo> CurrentLogins { get; set; }
         public IList<AuthenticationDescription> OtherLogins { get; set; }
+        public string Name { get; set; }
     }
 
     public class FactorViewModel

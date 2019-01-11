@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Testgrej.Models
@@ -65,6 +66,14 @@ namespace Testgrej.Models
     public class RegisterViewModel
     {
         [Required]
+        [Display(Name = "Name")]
+        public string Name { get; set; }
+
+        [Display(Name = "Date of birth (MM/DD/YYYY)")]
+        [DataType(DataType.Date)]
+        public DateTime BirthDate { get; set; }
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
@@ -79,6 +88,14 @@ namespace Testgrej.Models
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+
+        [Display(Name = "About me")]
+        public string AboutMe { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "Image")]
+        public string Image { get; set; }
+
     }
 
     public class ResetPasswordViewModel

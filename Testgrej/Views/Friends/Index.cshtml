@@ -1,0 +1,18 @@
+﻿@model Testgrej.Models.ApplicationUser
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Friend requests</h2>
+
+@foreach (var request in @Model.FriendRequests) {
+<div>
+    <img src="@request.Image" width="300" />
+    <span>@request.Name</span>
+    <a href="/Profile/AcceptFriend/@Model.Id" class="btn btn-default">Accept request</a>
+    <a href="/Profile/DeclineFriend/@Model.Id" class="btn btn-default">Decline request</a>
+
+</div>
+}
+

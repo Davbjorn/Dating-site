@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Testgrej.Models;
@@ -12,7 +14,7 @@ namespace Testgrej.Controllers
 {
     [Authorize]
     public class ManageController : Controller
-    {
+    {    
         private ApplicationSignInManager _signInManager;
         private ApplicationUserManager _userManager;
 
@@ -32,9 +34,9 @@ namespace Testgrej.Controllers
             {
                 return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
             }
-            private set 
-            { 
-                _signInManager = value; 
+            private set
+            {
+                _signInManager = value;
             }
         }
 
@@ -64,14 +66,59 @@ namespace Testgrej.Controllers
                 : "";
 
             var userId = User.Identity.GetUserId();
+            var manager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(new ApplicationDbContext()));
+            var currentUser = manager.FindById(userId);
+            
+                
+            // Save today's date.
+            var today = DateTime.Today;
+            // Calculate the age.
+            var age = today.Year - currentUser.BirthDate.Year;
+            // Go back to the year the person was born in case of a leap year
+            if (currentUser.BirthDate > today.AddYears(-age)) age--;
             var model = new IndexViewModel
+
             {
-                HasPassword = HasPassword(),
-                PhoneNumber = await UserManager.GetPhoneNumberAsync(userId),
-                TwoFactor = await UserManager.GetTwoFactorEnabledAsync(userId),
-                Logins = await UserManager.GetLoginsAsync(userId),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId)
+                HasPassword = HasPassword(),              
+                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(userId),
+                //BirthDate = currentUser.BirthDate,
+                AboutMe = currentUser.AboutMe,
+                Name = currentUser.Name,
+                PhoneNr = currentUser.PhoneNr,
+                Email = currentUser.Email,
+                Image = currentUser.Image,
+                Age = age
+
             };
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Update(IndexViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                string username = User.Identity.Name;
+                // Get the userprofile
+                var db = new ApplicationDbContext();
+                ApplicationUser user = db.Users.FirstOrDefault(u => u.UserName.Equals(username));
+
+                // Update fields
+                user.Name = model.Name;
+                user.Image = model.Image;
+                user.AboutMe = model.AboutMe;
+
+                db.Entry(user).State = EntityState.Modified;
+
+                db.SaveChanges();
+
+                return RedirectToAction("Index", "Manage");
+
+
+            }
+
+            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
